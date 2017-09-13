@@ -1,0 +1,569 @@
+######################################################################
+# THIS IS A READ ONLY FILE AND MAKE EDITS ONLY FOR REFERENCE UPDATES.
+# PLEASE DO NOT USE THIS FILE AS A PLAYGROUND FOR RUNNING CASES.
+
+# Make a copy of this file and name it as input_args to avoid git from tracking
+# it
+######################################################################
+# Input format = <arg><space><value>
+# A line starting with '#'(quotes for clarity) is ignored
+# Empty line is also ignored
+
+######################################################################
+# Default parameters
+-o logs/two_phase_momentum/rising_bubble/density_ratio_1000_100/40_80/
+-scale 0
+-last_frame 2
+-cfl 0.5
+-gravity 0.98
+
+######################################################################
+# Grid parameters
+-x_cells 40
+-y_cells 80
+-z_cells 40
+
+-x_min 0
+-x_max 1
+-y_min 0
+-y_max 2
+-z_min 0.
+-z_max 1.
+
+######################################################################
+# Frame vs time
+-use_frames 0
+
+######################################################################
+# Temporal schemes
+#   advection temporal scheme
+#       0=>Euler
+#       1=>RK3
+#       2=>Adams-Bashforth
+#       3=>TVD-RK2
+-adv_temporal_scheme 0
+
+# Apply advection (none, pure, combined)
+#   0=>No advection
+#   1=>Advection using given velocity field
+#   2=>Advection using MAC velocities
+-apply_advection 2
+
+# Volume of fluid method
+# temporal_discretization
+#   0 => FORWARD_EULER
+-alpha1_temporal_discretization 0
+# solve_alpha1_convection_term
+#   0 => not solved
+#   1 => solved
+-solve_alpha1_convection_term 1
+# solve_alpha1_compression_term
+#   0 => not solved
+#   1 => solved
+-solve_alpha1_compression_term 0
+# alpha1_use_mules
+#   0 => not used
+#   1 => used
+-alpha1_use_mules 1
+# alpha1_convection_term_surface_interpolation_scheme_limiter_factor
+#   value => (0,1]
+-alpha1_convection_term_surface_interpolation_scheme_limiter_factor 1
+# alpha1_compression_term_surface_interpolation_scheme_limiter_factor
+#   value => (0,1]
+-alpha1_compression_term_surface_interpolation_scheme_limiter_factor 1
+# convection_term_discretization
+#   0 => GAUSS
+-alpha1_convection_term_discretization 0
+# compression_term_discretization
+#   0 => GAUSS
+-alpha1_compression_term_discretization 0
+# Surface interpolation schemes
+#   alpha1_convection_term_surface_interpolation
+#   alpha1_compression_term_surface_interpolation
+#   alpha1_velocity_convection_term_surface_interpolation
+#       0 => INTERFACE_COMPRESSION
+#       1 => LINEAR
+#       2 => LIMITED_LINEAR
+#       3 => MINMOD
+#       4 => MUSCL
+#       5 => SUPERBEE
+#       6 => UPWIND
+#       7 => VANALBADA
+#       8 => VANLEER
+-alpha1_convection_term_surface_interpolation 5
+-alpha1_compression_term_surface_interpolation 0
+-alpha1_velocity_convection_term_surface_interpolation 1
+
+# Level set advection algorithm
+#   1 => GALS
+#   2 => Standard Levelset
+-levelset_advection_algorithm 1
+# Level set advection convection term discretization
+#   1 => 1st order upwind (NOT IMPLEMENTED)
+#   2 => 2nd order upwind (NOT IMPLEMENTED)
+#   3 => 2nd order ENO (NOT IMPLEMENTED)
+#   4 => 3rd order ENO (NOT IMPLEMENTED)
+#   5 => 5th order WENO (for standard levelset advection)
+-levelset_advection_convection_discretization_scheme 5
+
+# Compute level set advection in the entire domain or not
+#   0 => Compute only in the narrow band
+#   1 => Compute in the entire domain
+-compute_levelset_transport_everywhere 1
+
+-adv_limit_grad 0
+-apply_narrow_band_dirichlet_bc_for_levelset 1
+
+# Narrow band region (this number is used for single processor, but while
+# running on multiple cores '-number_of_ghost_cells' fields is used
+-narrow_band_extent 3
+
+# Extent to which interfacial cells are bounded before triggering
+# reinitialization
+-bound_interfacial_cells_extent 1
+
+######################################################################
+# Reinitialization related parameters
+#   reinitialization temporal scheme
+#       0=>One step marching procedure (for GALS reinitialization)
+#       1=>Multipoint procedure (for GALS reinitialization)
+#       2=>1st order Euler (for standard level set reinitialization)
+#       3=>2nd order TVD RK (for standard level set reinitialization)
+-reinit_temporal_scheme 1
+-reinit_limit_grad 0
+
+#   use_reinitialization
+#       0=>No reinitialization
+#       1=>Use gradient augmented reinitialization
+#       2=>fast marching method
+#       3=>Reinitialization standard
+#       4=>Russo and Smereka fix (TODO interfacial fix needed)
+#       5=>Standard reinitialization at the end of full time step
+-use_reinitialization 1
+# Level set reinitialization convection term discretization
+#   1 => Godunov scheme and 5th order WENO (for standard reinitialization)
+-levelset_reinitialization_spatial_discretization_scheme 1
+
+#   reinitialization_criterion
+#       0=>Based on interface crossing bounding regions
+#       1=>Depending on specified time steps
+#       2=>Depending on specified frame durations
+-reinitialization_criterion 0
+#   If reinitialization_criterion=1, then reinitialization is performed
+#   after every `reinitialization_frequency` time steps
+-reinitialization_frequency 1
+
+# Reinitialization before start of sim needed?
+# - currently if this is true then reintialization is true for the
+#   entire sim (TODO)
+-use_reinitialization_at_start 0
+-reinit_iterations 4
+#   root finding method
+#       0=>Modified Newton's method
+-root_finding_method 0
+-epsilon_root_finding 1e-8
+-max_iterations_root_finding 99
+
+# Reinitialization primer (make sure to use when narrow band cells
+# are active)
+-use_reinitialization_primer 1
+-max_reinit_primer_iterations 10
+
+######################################################################
+# Time settings
+#   -is_dt_fixed=>1:dt is not computed based on CFL; 0:computed based on CFL
+-is_dt_fixed 1
+-is_dt_times_dx 1
+-dt_given 1.
+-t_start 0.
+-t_final 3.
+-write_time_interval 0.5
+# -log_data_time_interval
+#   Writes computed data per provided time interval into a file
+-log_data_time_interval 0.5
+
+######################################################################
+# Momentum solution and phase properties
+-solve_momentum 1
+
+# Discretization scheme for convection term in momentum equation
+#   1=>First order upwind
+#   2=>Second order upwind
+#   3=>Second order ENO(Needs testing)
+#   5=>Fifth order WENO
+-mom_convection_scheme 5
+
+-apply_viscosity 1
+-use_viscous_jump 1
+
+# Discrete approximation approach for viscous term in momentum equation
+#   1=>Harmonic approximation (now also has rho as averaged)
+#   2=>Delta approximation
+-visc_approx_scheme 1
+#   Density treatment in `Harmonic approximation`
+#       1=>Same approximation as used for beta_face while solving pressure
+#           Poisson equation using ghost fluid method
+#       2=>Using weighted average
+#       3=>Using average
+#       4=>Sharp densities, i.e. based on phi at face
+#       5=>By smearing density field [similar to weighted average formulation]
+#       6=>Some wrong formulation
+-density_approx_for_visc 1
+
+-apply_surface_tension 1
+
+# Computing jump values at interface
+#   -gfm_jump_values_compute_method
+#       1 => 1D based, phi weighted approximation
+#       2 => Locate interface and use interpolation schemes to compute value at
+#       interface
+-gfm_jump_values_compute_method 1
+#   -gfm_interface_identification_method
+#       1 => Using adjacent level set values
+#       2 => Hermite interpolation [change to linear if required]
+-gfm_interface_identification_method 1
+#   -gfm_compute_method_for_value_at_interface
+#       1 => n-linear interpolation
+-gfm_compute_method_for_value_at_interface 1
+
+# Density values
+-rho_liquid 1000
+-rho_vapor 100
+
+# Dynamic viscosity
+-mu_liquid 10
+-mu_vapor 1
+
+# Surface tension coefficient in 'N/m'
+-sigma 24.5
+
+# boundary conditions
+#   0=>Does nothing explicitly
+#   1=>Dirichlet boundary condition
+#   2=>Neumann boundary conditions
+# x-component of velocity
+-u_boundary_condition_left 1
+-u_boundary_condition_right 1
+-u_boundary_condition_bottom 1
+-u_boundary_condition_top 2
+-u_boundary_condition_back 1
+-u_boundary_condition_front 1
+# y-component of velocity
+-v_boundary_condition_left 0
+-v_boundary_condition_right 0
+-v_boundary_condition_bottom 1
+-v_boundary_condition_top 2
+-v_boundary_condition_back 1
+-v_boundary_condition_front 1
+# z-component of velocity
+-w_boundary_condition_left 1
+-w_boundary_condition_right 1
+-w_boundary_condition_bottom 1
+-w_boundary_condition_top 2
+-w_boundary_condition_back 1
+-w_boundary_condition_front 1
+
+# boundary values
+# x-component of velocity
+-u_boundary_value_left 0.
+-u_boundary_value_right 0.
+-u_boundary_value_bottom 0.
+-u_boundary_value_top 0.
+-u_boundary_value_back 0.
+-u_boundary_value_front 0.
+# y-component of velocity
+-v_boundary_value_left 0.
+-v_boundary_value_right 0.
+-v_boundary_value_bottom 0.
+-v_boundary_value_top 0.
+-v_boundary_value_back 0.
+-v_boundary_value_front 0.
+# z-component of velocity
+-w_boundary_value_left 0.
+-w_boundary_value_right 0.
+-w_boundary_value_bottom 0.
+-w_boundary_value_top 0.
+-w_boundary_value_back 0.
+-w_boundary_value_front 0.
+
+# domain walls
+#   0=>false
+#   1=>true
+-domain_wall_left 1
+-domain_wall_right 1
+-domain_wall_bottom 1
+-domain_wall_top 0
+-domain_wall_back 1
+-domain_wall_front 1
+
+######################################################################
+# Temperature solution and phase properties
+-solve_energy 0
+
+-is_phase_change 0
+-saturation_temperature 0
+
+# Thermal properties
+#   -k_liquid (W/m-K)
+-k_liquid 0.6
+
+#   -k_vapor (W/m-K)
+-k_vapor 0.026
+
+#   -cp_liquid (J/kg-K)
+-cp_liquid 4216
+
+#   -cp_vapor (J/kg-K)
+-cp_vapor 2034
+
+#   latent heat of vaporization (J/kg)
+-h_lv 2.257e6
+
+# Mass transfer rate compute methods
+#   1=>T^L,T^V are extrapolated in the entire domain and \dot{m} is computed in the entire domain
+#   2=>T^L,T^V are extrapolated in the entire domain and \dot{m} is computed at interfacial cells and are constantly extrapolated normalwise for the entire domain
+#   3=>\nablaT^L,\nablaT^V are computed by imposing Dirichlet bc on T at interface and T^L,T^V is populated in the entire domain by normal-wise
+#       linear extrapolation, which are used to compute \dot{m} as in `2`
+#   4=>Compute \nablaT^L,\nablaT^V as in `3` and extrapolate \nablaT^L\dot\textbf{n},\nablaT^V\dot\textbf{n} using normal-wise constant
+#       extrapolation and then compute \dot{m} in the interfacial cells and then extrapolate \dot{m} as in `2`
+#   5=>Compute \nablaT^L,\nablaT^V as in `3` and extrapolate \nablaT^L,\nablaT^V across the interface using normal-wise constant extrapolation and then
+#   compute \dot{m} in the interfacial cells which is then extrapolated as in `2`
+#   6=>Compute \nablaT^L\dot\textbf{n}, \nablaT^V\dot\textbf{n} directly using signed distance function,
+#       i.e. (T_{i,j,k}-T_{\Gamma})/|\phi_{i,j,k}|, if \phi_{i,j,k}<0
+-mdot_compute_method 2
+# Methods to compute mass transfer rate at interface
+#   1=>Using linear interpolation on mdot via level set values.
+#   2=>Using one-sided difference approximations on temperature to compute mdot
+#   at interface [NOTE: valid only for 1D].
+-mdot_interface_compute_method 1
+# Interface location compute method to compute mdot
+#   1=>Using adjacent levelset values
+#   2=>Using Hermite interpolating polynomial
+-mdot_interface_location_compute_method 1
+#   -mdot_interface_distance_factor_limit:
+#       if dx_computed <= energy_diff_interface_distance_factor_limit * dx_reference
+#       then isothermal or appropriate approximations will be used
+#       //Times dx => \theta=mdot_interface_distance_factor_limit*dx
+-mdot_interface_distance_factor_limit 0.1
+# When interface is close to adjacent nodal location!!!
+#   1=>Use 'interface', 'side', 'far side' [pseudo one-sided]
+#   2=>Use 'this', 'side', 'far side' [one-sided]
+#   3=>Use 'far side[interface]', 'side', 'interface[far side]' [2O non-uniform stencil] <- Not accurate
+#   4=>Use interface value = nodal value when close to interface
+#   5 => Use interface value = adjacent nodal value, i.e. constant extrapolation.
+#   6 => Use 'interface', 'side', 'far side' [unlike `1`, this implementes second order approximation]
+-mdot_resolve_proximity_approach 1
+
+# Temporal scheme
+#   1=>Forward Euler
+#   2=>Backward Euler
+-energy_temporal_scheme 1
+
+# Compute energy convection term
+#   0 => Not computed
+#   1 => Computed
+-compute_energy_conv_term 1
+# Compute energy diffusion term
+#   0 => Not computed
+#   1 => Computed
+-compute_energy_diff_term 1
+
+# Extrapolation scheme for temperature, to use in convection and diffusion terms
+#   -energy_temperature_extrapolation_scheme
+#       0 => No extrapolation.
+#       1 => Normal wise constant extrapolation without Dirichlet boundary condition at interface.
+#       2 => Normal wise linear extrapolation without Dirichlet boundary condition at interface.
+#       3 => Normal wise quadratic extrapolation without Dirichlet boundary condition at interface.
+#       4 => Normal wise constant extrapolation with Dirichlet boundary condition at interface.
+#       5 => Normal wise linear extrapolation with Dirichlet boundary condition at interface.
+#           [TODO Not implemented for implicit energy solve]
+#       6 => Explicitly populate constant ghost values.
+-energy_temperature_extrapolation_scheme 2
+# Convection term
+#   -energy_conv_discrete_treatment
+#       0=>Using no ghost values
+#       1=>Using normal-wise extrapolated temperature values for discretization
+#       2=>By locating interface
+-energy_conv_discrete_treatment 1
+#   -energy_conv_interface_location_compute_method
+#   {Method to locate interface}
+#       1=>Using adjacent levelset values
+#       2=>Using Hermite interpolating polynomial
+-energy_conv_interface_location_compute_method 1
+#   Discretization scheme for convection term in energy equation
+#   Note: use appropriate scheme based on discrete treatment specified above for convection term
+#       1 => First order upwind [available for all discrete treatments above]
+#       2 => Second order upwind
+#       3 => Second order ENO (NOT IMPLEMENTED)
+#       5 => Fifth order WENO
+#       6 => First order upwind near interfacial cells, WENO5 away from interfacial cells
+-energy_convection_scheme 5
+#   -energy_conv_interface_distance_factor_limit:
+#       if dx_computed <= energy_conv_interface_distance_factor_limit * dx_reference
+#       then isothermal or appropriate approximations will be used
+#       //Times dx => \theta=energy_conv_interface_distance_factor_limit*dx
+-energy_conv_interface_distance_factor_limit 0.1
+# When interface is close to adjacent nodal location!!!
+#   1 => Use 'interface', 'side' [pseudo one-sided].
+#   2 => Use interface value = nodal value when close to interface.
+#   3 => Use interface value = adjacent nodal value, i.e. constant extrapolation.
+-energy_conv_resolve_proximity_approach 2
+
+# Diffusion term
+#   -energy_diff_discrete_treatment
+#       0=>Using no ghost values [TODO: currently NOT IMPLEMENTED for implicit diffusion treatment]
+#       1=>Using component-wise discretization while populating ghost values for temperature
+#       2=>Using normal-wise extrapolated temperature values for discretization [TODO: currently NOT IMPLEMENTED for implicit diffusion treatment]
+#       3=>By locating interface
+-energy_diff_discrete_treatment 1
+#   -interface_location_compute_method_diffusion
+#   {Method to locate interface to extrapolate temperature, when `-energy_diff_discrete_treatment`=1}
+#       1=>Using adjacent levelset values
+#       2=>Using Hermite interpolating polynomial
+-interface_location_compute_method_diffusion 1
+#   -energy_diff_interface_distance_factor_limit:
+#       if dx_computed <= energy_diff_interface_distance_factor_limit * dx_reference
+#       then isothermal or appropriate approximations will be used
+#       //Times dx => \theta=energy_diff_interface_distance_factor_limit*dx
+-energy_diff_interface_distance_factor_limit 0.1
+# When interface is close to adjacent nodal location!!!
+#   1=>Use 'interface', 'side', 'far side' [pseudo one-sided]
+#   2=>Use 'this', 'side', 'far side' [one-sided]
+#   3=>Use 'far side[interface]', 'side', 'interface[far side]' [non-uniform stencil] <- Not accurate
+#   4=>Use interface value = nodal value when close to interface
+#   5 => Use interface value = adjacent nodal value, i.e. constant extrapolation.
+#   6 => Isothermal approximation
+#   7 => Use 'interface', 'side', 'far side' [unlike `1`, this implementes second order approximation]
+#       [NOTE: This is only implemented for discretization_approximation_order=2]
+-energy_diff_resolve_proximity_approach 1
+# Diffusion effects when interface is close to adjacent nodal location
+#   -energy_diff_levelset_proximity_distance_factor
+#       if dx_computed <= energy_diff_levelset_proximity_distance_factor * dx_reference
+#       then isothermal or appropriate approximations will be used
+-energy_diff_levelset_proximity_distance_factor 1
+# Diffusion discretization approximation order
+#   -energy_diff_discretization_approximation_order
+#       1 => First order
+#       2 => Second order
+-energy_diff_discretization_approximation_order 1
+
+# -limit_normalized_interface_distance
+#   0=>Compute extrapolation irrespective of normalized interface distance value
+#   1=>Use contant extrapolation based on the threshold of \Deltax
+-limit_normalized_interface_distance_diffusion 1
+
+# -use_sharp_thermal_conductivity
+#   0=>Thermal conductivity at faces is weighted
+#   1=>Thermal conductivity at faces is sharp
+-use_sharp_thermal_conductivity 0
+
+# boundary conditions
+#   1=>Dirichlet boundary condition
+#   2=>Neumann boundary conditions
+-temperature_boundary_condition_left 1
+-temperature_boundary_condition_right 1
+-temperature_boundary_condition_bottom 1
+-temperature_boundary_condition_top 1
+-temperature_boundary_condition_back 1
+-temperature_boundary_condition_front 1
+
+# boundary values
+-temperature_boundary_value_left 0.
+-temperature_boundary_value_right 0.
+-temperature_boundary_value_bottom 0.
+-temperature_boundary_value_top 0.
+-temperature_boundary_value_back 0.
+-temperature_boundary_value_front 0.
+
+# Initial temperature field
+#   -initial_temperature_profile
+#       -1=>Analytical Functions
+#       0=>1D KH planar
+#       1=>1D Stefan problem [Sato, Niceno 2013]
+#       2=>1D heat conduction case
+#       3=>Scriven problem temperature field
+#       5 => 2D Frank sphere (cylinder)
+-initial_temperature_profile 0
+-initial_temperature_liquid 363.15
+-initial_temperature_vapor 383.15
+
+######################################################################
+# Object parameters
+#   -object:
+#       0=>expcircle
+#       1=>circle (To use vapor bubble, assign pr=-1, otherwise it is a liquid drop)
+#       2=>circle with varying gradient (for reinitialization) [object parameters are default]
+#       3=>Eq. 35 from Anumolu and Trujillo, Int. J. Numer. Meth. Fluids 2013
+#       4=>3D phi: Eq. 43 from Anumolu and Trujillo, Int. J. Numer. Meth. Fluids 2013
+#       5=>Dual smooth circles
+#       6=>Dam break case setup
+#       7=>Ellipse/ellipsoid
+#       8=>Capped cylindrical object 2D
+#       9=>Standing wave setup
+#       10=>Liquid column retraction
+#       11=>1D line
+#       13=>Rayleigh breakup case (p1 = k_p [wave number], pr = eta_o [amplitude = eta_o * dx])
+-object 1
+-xo 0.5
+-yo 0.5
+-zo 0.5
+-ro 0.25
+-p1 0.75
+-p2 0.3333
+-p3 0.3333
+-pr -1
+
+######################################################################
+# Velocity parameters
+#   -velocity:
+#       0=>circular
+#       1=>single vortex
+#       2=>single vortex antisymmetric
+#       3=>spatially constant velocity vector
+#       4=>single vortex symmetric
+#       5=>3D vortex flow field
+#       6=>Double vortex
+#       7=>Oscillating Flow Field
+-velocity 3
+-xc 0.5
+-yc 0.5
+-zc 0.5
+-u_given .0
+-v_given .0
+-w_given .0
+-kappa_velocity 2.
+-T 2.
+
+######################################################################
+# Error related parameters
+-error_band 3
+
+######################################################################
+# Choose the form of hermite interpolating polynomial
+#   -hermite_interpolation_form:
+#       0=>standard form
+#       1=>B-form
+-hermite_interpolation_form 1
+-number_of_ghost_cells 3
+-number_of_global_ghost_cells 3
+
+#####################################################################
+# Miscellaneous parameters
+#   -interface_distance_factor_limit_global:
+#       if dx_computed <= interface_distance_factor_limit_global * dx_reference
+#       then isothermal or appropriate approximations will be used
+#   //Times dx => \theta=interface_distance_factor_limit_global*dx
+-interface_distance_factor_limit_global 0.1
+
+#   -proximity_scalars_treatment_when_cell_is_isolated:
+#       How to generate ghost quantities, when interface is on both sides
+#       1 => Linear extrapolation
+#       2 => Constant extrapolation
+-proximity_scalars_treatment_when_cell_is_isolated 1
+
+#####################################################################
+# Global parameters
+#   -global_temporal_scheme
+#       1 => Euler
+#       2 => Second order TVD-RK
+-global_temporal_scheme 1
